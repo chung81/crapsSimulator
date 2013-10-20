@@ -221,6 +221,7 @@ class CrapsTable
 
         $this->rollHistory[] = $rollResult;
         $this->shooterRollCount++;
+
     }
 
     function setPoint($point)
@@ -326,6 +327,7 @@ class CrapsTable
              * 
              */
             
+
             switch ($rollResult)
             {
                 case 2:
@@ -418,7 +420,7 @@ class CrapsTable
         $this->crapOuts++;
         $this->point = 0;
         $this->shooterRollCountHistory[] = $this->shooterRollCount;
-        $this->shooterRollCount = 0;
+        $this->shooterRollCount = 0; 
 
         //
         // Clear the bets
@@ -658,5 +660,21 @@ class CrapsTable
         {
             return $countArray;
         }
+    }
+
+    function averageShooterRollCount()
+    {
+        return array_sum($this->shooterRollCountHistory)/count($this->shooterRollCountHistory);
+    }
+
+    function shooterStandardDev()
+    {
+        $average = $this->averageShooterRollCount();
+        $stdSum = 0;
+        foreach($this->shooterRollCountHistory as $rollCount)
+        {
+            $stdSum += abs($rollCount - $average)^2;
+        }
+        return $stdSum/count($this->shooterRollCountHistory);
     }
 }
