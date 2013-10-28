@@ -139,6 +139,51 @@ checkBet($crapstable,$playerId,'placeFive',5);
 $crapstable->betUpDown('placeFive',$playerId,false);
 checkBet($crapstable,$playerId,'placeFive',0);
 $crapstable->roll(7);
+checkPlayerBalance($crapstable,$playerId,308);  // We took 10 off the table
+
+
+// Checking come bets
+
+$bet = $crapstable->players[$playerId]->createBet('come',5);
+$crapstable->addBet($bet);
+
+$crapstable->roll(7);  // come win
+checkPlayerBalance($crapstable,$playerId,313);  
+
+$bet = $crapstable->players[$playerId]->createBet('come',5);
+$crapstable->addBet($bet);
+
+$crapstable->roll(11);  // come win
+checkPlayerBalance($crapstable,$playerId,318);  
+
+$crapstable->roll(6);  // point
+
+$bet = $crapstable->players[$playerId]->createBet('come',5);
+$crapstable->addBet($bet);
+
+$crapstable->roll(5);  // come bet should be moved here
+checkBet($crapstable,$playerId,'come5',5);
+checkBet($crapstable,$playerId,'come',0);
+
+$bet = $crapstable->players[$playerId]->createBet('comeOdds5',10);
+$crapstable->addBet($bet);
+
+$crapstable->roll(5);  // come win
+checkBet($crapstable,$playerId,'come5',0);
+checkPlayerBalance($crapstable,$playerId,338);  
+
+$bet = $crapstable->players[$playerId]->createBet('come',5);
+$crapstable->addBet($bet);
+
+$crapstable->roll(4);  // come bet should be moved here
+checkBet($crapstable,$playerId,'come4',5);
+checkBet($crapstable,$playerId,'come',0);
+
+$bet = $crapstable->players[$playerId]->createBet('comeOdds4',10);
+$crapstable->addBet($bet);
+
+$crapstable->roll(4);  // come win
+checkPlayerBalance($crapstable,$playerId,363);  
 
 print "\n";
 print "Table Bets:\n";

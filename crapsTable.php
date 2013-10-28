@@ -64,6 +64,19 @@ class CrapsTable
             'placeEight' => array(),
             'placeNine' => array(),
             'placeTen' => array(),
+            'come' => array(),
+            'come4' => array(),
+            'come5' => array(),
+            'come6' => array(),
+            'come8' => array(),
+            'come9' => array(),
+            'come10' => array(),
+            'comeOdds4' => array(),
+            'comeOdds5' => array(),
+            'comeOdds6' => array(),
+            'comeOdds8' => array(),
+            'comeOdds9' => array(),
+            'comeOdds10' => array(),
         );
 
         $this->betsOnOff = array(
@@ -224,11 +237,31 @@ class CrapsTable
 
     }
 
-    function setPoint($point)
+    function setPoint()
     {
-        $this->point = $point;
-        $this->turnBets($this->betsOnOff, true);
-        print "Setting Point: " . $this->point . "\n";
+        if($this->point == 0 && ($this->checkCrap($this->lastRoll) != 1))
+        {
+            $this->point = $this->lastRoll;
+            $this->turnBets($this->betsOnOff, true);
+            print "Setting Point: " . $this->point . "\n";
+        }
+    }
+
+    // Checks to see if the number can be a point
+    function checkCrap($number)
+    {
+        if($number == 2 || 
+            $number == 3 ||
+            $number == 7 ||
+            $number == 11 ||
+            $number ==12)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     function roll($rollResult = 0)
@@ -249,137 +282,59 @@ class CrapsTable
         
         $this->countRoll($rollResult);
 
-        // Check to see if the point is set
-        if ($this->point == 0)
-        {
-            switch ($rollResult)
-            {
-                case 2:
-                    // crap
-                    $this->tableLoss('passLine');
-                    $this->fieldWin($rollResult);
-                    break;
-                case 3:
-                    // crap
-                    $this->tableLoss('passLine');
-                    $this->fieldWin($rollResult);
-                    break;
-                case 4:
-                    // Point, Field, Hard?
-                    $this->placeWin('placeFour');
-                    $this->setPoint(4);
-                    $this->fieldWin($rollResult);
-                    break;
-                case 5:
-                    // Point, No Field
-                    $this->placeWin('placeFive');
-                    $this->setPoint(5);
-                    $this->tableLoss('field');
-                    break;
-                case 6:
-                    // Point, No Field, Hard?
-                    $this->placeWin('placeSix');
-                    $this->setPoint(6);
-                    $this->tableLoss('field');
-                    break;
-                case 7:
-                    $this->passWin();
-                    $this->tableLoss('field');
-                    break;
-                case 8:
-                    // Point, No Field, Hard?
-                    $this->placeWin('placeEight');
-                    $this->setPoint(8);
-                    $this->tableLoss('field');
-                    break;
-                case 9:
-                    // Point, Field
-                    $this->placeWin('placeNine');
-                    $this->setPoint(9);
-                    $this->fieldWin($rollResult);
-                    break;
-                case 10:
-                    // Point, Field, Hard?
-                    $this->placeWin('placeTen');
-                    $this->setPoint(10);
-                    $this->fieldWin($rollResult);
-                    break;
-                case 11:
-                    // Yo
-                    $this->passWin();
-                    $this->fieldWin($rollResult);
-                    break;
-                case 12:
-                    // crap
-                    $this->tableLoss('passLine');
-                    $this->fieldWin($rollResult);
-                    break;
-            }
-        }
-        else
-        {
-            /*
-             *
-             *
-             * Point is set
-             *
-             *
-             * 
-             */
-            
 
-            switch ($rollResult)
-            {
-                case 2:
-                    // crap
-                    $this->fieldWin($rollResult);
-                    break;
-                case 3:
-                    // crap
-                    $this->fieldWin($rollResult);
-                    break;
-                case 4:
-                    $this->placeWin('placeFour');
-                    $this->fieldWin($rollResult);
-                    break;
-                case 5:
-                    $this->placeWin('placeFive');
-                    $this->tableLoss('field');
-                    break;
-                case 6:
-                    $this->placeWin('placeSix');
-                    $this->tableLoss('field');
-                    break;
-                case 7:
-                    // Crap out
-                    $this->crapOut();
-                    break;
-                case 8:
-                    $this->placeWin('placeEight');
-                    $this->tableLoss('field');
-                    break;
-                case 9:
-                    $this->placeWin('placeNine');
-                    $this->fieldWin($rollResult);
-                    break;
-                case 10:
-                    $this->placeWin('placeTen');
-                    $this->fieldWin($rollResult);
-                    break;
-                case 11:
-                    $this->fieldWin($rollResult);
-                    // Yo
-                    break;
-                case 12:
-                    $this->fieldWin($rollResult);
-                    // crap
-                    break;
-            }
-            if ($this->checkPoint($rollResult))
-            {
-            }
+        switch ($rollResult)
+        {
+            case 2:
+                $this->processtwo();
+                break;
+            case 3:
+                // crap
+                $this->processThree();
+                break;
+            case 4:
+                $this->processFour();
+                break;
+            case 5:
+                $this->processFive();
+                break;
+            case 6:
+                $this->processSix();
+                break;
+            case 7:
+                $this->processSeven();
+                break;
+            case 8:
+                $this->processEight();
+                break;
+            case 9:
+                $this->processNine();
+                break;
+            case 10:
+                $this->processTen();
+                break;
+            case 11:
+                $this->processEleven();
+                break;
+            case 12:
+                $this->processTwelve();
+                break;
         }
 
+        // We check for the point last so that if the point is hit it can auto turn off
+        // the bets
+        if ($this->point != 0)
+        {
+            $this->checkPoint($rollResult);
+        }
+        else 
+        {
+            $this->setPoint();
+        }
+
+        $this->processCome();
+        //
+        // Pay out the table winnings
         foreach($this->players as $player)
         {
             $player->balance += $player->winnings;
@@ -391,6 +346,103 @@ class CrapsTable
             $player->tableLoss = 0;
             $player->netGain = $netGain;
         }
+    }
+
+    function processTwo()
+    {
+        if($this->point==0)
+        {
+            $this->tableLoss('passLine');
+        }
+        $this->tableLoss('come');
+        $this->fieldWin();
+    }
+
+    function processThree()
+    {
+        if($this->point==0)
+        {
+            $this->tableLoss('passLine');
+        }
+        $this->tableLoss('come');
+        $this->fieldWin();
+    }
+
+    function processFour()
+    {
+        // Point, Field, Hard?
+        $this->placeWin('placeFour');
+        $this->fieldWin();
+    }
+
+    function processFive()
+    {
+        // Point, No Field
+        $this->placeWin('placeFive');
+        $this->tableLoss('field');
+    }
+
+    function processSix()
+    {
+        // Point, No Field, Hard?
+        $this->placeWin('placeSix');
+        $this->tableLoss('field');
+    }
+
+    function processSeven()
+    {
+        if($this->point > 0)
+        {
+            $this->crapOut();
+        }
+        else
+        {
+            $this->passWin();
+        }
+        $this->comeWin();
+    }
+
+    function processEight()
+    {
+        // Point, No Field, Hard?
+        $this->placeWin('placeEight');
+        $this->tableLoss('field');
+    }
+
+    function processNine()
+    {
+        // Point, Field
+        $this->placeWin('placeNine');
+        $this->fieldWin();
+    }
+
+    function processTen()
+    {
+        // Point, Field, Hard?
+        $this->placeWin('placeTen');
+        $this->fieldWin();
+    }
+
+    function processEleven()
+    {
+        // Yo
+        if($this->point==0)
+        {
+            $this->passWin();
+        }
+        $this->comeWin();
+        $this->fieldWin();
+    }
+
+    function processTwelve()
+    {
+        // crap
+        if($this->point==0)
+        {
+            $this->tableLoss('passLine');
+        }
+        $this->tableLoss('come');
+        $this->fieldWin($rollResult);
     }
 
     function getOdds($point)
@@ -453,11 +505,111 @@ class CrapsTable
                     $this->players[$passLineBet->playerId]->winnings += $passLineBet->betSize;
 
                     $this->players[$passLineBet->playerId]->message .= "Pass Line Win: " . $passLineBet->betSize . ',';
+
+                    // Clear the bet
+                    $this->bets['passLine'][$passLineBet->playerId] = NULL;
                 }
             }
         }
 
-        $this->bets['passLine'] = array();
+    }
+
+    function processCome()
+    {
+        // 
+        // Pay the odds for the come bets
+        //
+        if($this->checkCrap($this->lastRoll) != 1)
+        {
+            $odds = $this->getOdds($this->lastRoll);
+
+            $comeBetWinNumber = 'comeOdds' . $this->lastRoll;
+            foreach($this->bets[$comeBetWinNumber] as $comeOddsBet)
+            {
+                if(!empty($comeOddsBet))
+                {
+                    if($comeOddsBet->on)
+                    {
+                        // Add back the pass line odds
+                        $this->players[$comeOddsBet->playerId]->balance += $comeOddsBet->betSize;
+
+                        // Place the winnings in a holding to pay at the end of the roll function
+                        $this->players[$comeOddsBet->playerId]->winnings += $comeOddsBet->betSize * $odds;
+
+                        $winSize = $comeOddsBet->betSize * $odds;
+                        $this->players[$comeOddsBet->playerId]->message .= "Come Odds Win: " . $winSize . ',';
+
+                        // clear the bet
+                        $this->bets[$comeBetWinNumber][$comeOddsBet->playerId] = NULL;
+                    }
+                }
+            }
+
+
+            // 
+            // Pay the line for the come bets
+            //
+            $comeBetWinNumber = 'come' . $this->lastRoll;
+            foreach($this->bets[$comeBetWinNumber] as $comeLineBet)
+            {
+                if(!empty($comeLineBet))
+                {
+                    if($comeLineBet->on)
+                    {
+                        // Add back the pass line
+                        $this->players[$comeLineBet->playerId]->balance += $comeLineBet->betSize;
+
+                        // Place the winning in a holding to pay at end of roll function
+                        $this->players[$comeLineBet->playerId]->winnings += $comeLineBet->betSize;
+
+                        $this->players[$comeLineBet->playerId]->message .= "Come Line Win: " . $comeLineBet->betSize . ',';
+
+                        // Clear the bet
+                        $this->bets[$comeBetWinNumber][$comeLineBet->playerId] = NULL;
+                    }
+                }
+            }
+
+            // move the come bets
+            foreach($this->bets['come'] as $comeBet)
+            {
+                if(!empty($comeBet))
+                {
+                    $newBetLocation = 'come' . $this->lastRoll;
+                    $comeBet->location = $newBetLocation;
+                    $this->bets[$newBetLocation][$comeBet->playerId] = $comeBet;
+                    $this->bets['come'][$comeBet->playerId] = NULL;
+                }
+            }
+
+        }
+
+    
+    
+    }
+
+    function comeWin()
+    {
+        foreach($this->bets['come'] as $comeBet)
+        {
+            if(!empty($comeBet))
+            {
+                if($comeBet->on)
+                {
+                    // Add back the pass line
+                    $this->players[$comeBet->playerId]->balance += $comeBet->betSize;
+
+                    // Place the winning in a holding to pay at end of roll function
+                    $this->players[$comeBet->playerId]->winnings += $comeBet->betSize;
+
+                    $this->players[$comeBet->playerId]->message .= "Come Win: " . $comeBet->betSize . ',';
+
+                    // Clear the bet
+                    $this->bets['come'][$comeBet->playerId] = NULL;
+                }
+            }
+        }
+
     }
 
     function tableLoss($location)
@@ -503,8 +655,9 @@ class CrapsTable
 
     }
 
-    function fieldWin($rollResult)
+    function fieldWin()
     {
+        $rollResult = $this->lastRoll;
         $odds = 1;
         if($rollResult == 2)
         {
